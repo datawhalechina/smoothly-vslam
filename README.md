@@ -2,7 +2,10 @@
 
 - **项目简介** 
 
-  👋  **欢迎来到VSLAM的世界**<br />SLAM是一个与传感器紧密联系的系统，VSLAM使用的传感器就是摄像头。处理摄像头数据需要理解相机成像的过程，这是一个从现实世界到计算机能处理的数据的映射过程。通过这节，你会知道相机的成像模型及映射过程的几个坐标系。与之相关的是相机的畸变及内参标定。这对应于第一章。<br />观测数据所处坐标系为传感器坐标系，为局部观测，我们需要将局部观测转换到全局观测上，这就涉及坐标系间转换。将传感器坐标系观测转换到载体坐标系需要通过外参，计算载体坐标系在世界坐标系下坐标需要用到三维空间中刚体运动变换。这两部分分别对应第二章与第三章。<br />通过上面三部分，基本就可以知道VSLAM的前端工作的一个背景了。可以想象VSLAM系统是在一个载体上搭载着摄像头，在未知环境中不断移动，对环境及自身位姿进行同时估计。那么什么是VSLAM？这块会在第四章进行介绍。<br />通过第四章，我们知道目前成熟的VSLAM框架主要包含前端，后端，回环检测及建图四个模块，这会在后续章节依次介绍。<br />前端为视觉里程计，即VO。我们着重介绍目前使用的较多的特征点法VO，也就是间接法。传统特征点法依赖人工设计的视觉特征，这块会在第五章进行介绍。<br />基于特征点的提取与匹配，我们可以对相机的位姿及特征点的三维空间位姿进行估计，这部分主要分为两个过程，即初始化过程及帧间位移估计。初始化需要确定三维空间点坐标，世界坐标系及尺度，比较复杂，在初始化完成后，就可以通过特征匹配，比较轻松得获得相机帧间位移。这两个过程会在第六章及第七章进行介绍。<br />介绍完视觉前端，接下来是视觉后端，按照使用不同技术，分为基于滤波的方法与非线性优化的方法。这两部分对应于第八章及第九章。<br />然后是回环检测模块，这部分会在第十章进行讲解。<br />VSLAM最后一个重要模块建图对应于第十一章，这也是主教程最后一个章节。<br />如果学有余力，可以看第十二章实践章节，亲自设计一个VSLAM系统。如果完成这个章节，你会获得很大的成就感，对于后面工程应用会有很大帮助。<br />最后就是进度，每天看一点就行。学到很多东西的秘诀，就是每次不要看太多。
+  👋  **欢迎来到VSLAM的世界**<br />SLAM是一个与传感器紧密联系的系统，VSLAM使用的传感器就是摄像头。处理摄像头数据需要理解相机成像的过程，这是一个从现实世界到计算机能处理的数据的映射过程。通过这节，你会知道相机的成像模型及映射过程的几个坐标系。与之相关的是相机的畸变及内参标定。这对应于第一章。<br />观测数据所处坐标系为传感器坐标系，为局部观测，我们需要将局部观测转换到全局观测上，这就涉及坐标系间转换。将传感器坐标系观测转换到载体坐标系需要通过外参，计算载体坐标系在世界坐标系下坐标需要用到三维空间中刚体运动变换。这两部分分别对应第二章与第三章。<br />通过上面三部分，基本就可以知道VSLAM的前端工作的一个背景了。可以想象VSLAM系统是在一个载体上搭载着摄像头，在未知环境中不断移动，对环境及自身位姿进行同时估计。那么什么是VSLAM？这块会在第四章进行介绍。<br />通过第四章，我们知道目前成熟的VSLAM框架主要包含前端，后端，回环检测及建图四个模块，这会在后续章节依次介绍。<br />前端为视觉里程计，即VO。我们着重介绍目前使用的较多的特征点法VO，也就是间接法。传统特征点法依赖人工设计的视觉特征，这块会在第五章进行介绍。<br />基于特征点的提取与匹配，我们可以对相机的位姿及特征点的三维空间位姿进行估计，这部分主要分为两个过程，即初始化过程及帧间位移估计。初始化需要确定三维空间点坐标，世界坐标系及尺度，比较复杂，在初始化完成后，就可以通过特征匹配，比较轻松得获得相机帧间位移。这两个过程会在第六章及第七章进行介绍。<br />介绍完视觉前端，接下来是视觉后端，按照使用不同技术，分为基于滤波的方法与非线性优化的方法。这两部分对应于第八章及第九章。<br />然后是回环检测模块，这部分会在第十章进行讲解。<br />VSLAM最后一个重要模块建图对应于第十一章，这也是主教程最后一个章节。<br />如果学有余力，可以看第十二章实践章节，亲自设计一个VSLAM系统。如果完成这个章节，你会获得很大的成就感，对于后面工程应用会有很大帮助。<br />最后就是进度，每天看一点就行。学到很多东西的秘诀，就是每次不要看太多。\
+
+  教程博客在线阅读地址一：[smoothly-vslam](https://www.yuque.com/u1507140/vslam-hmh)
+
 <a name="lKFny"></a>
 ### 推荐书籍
 VSLAM属于一个交叉系统学科，包含很多方向的内容，如多视图几何，状态估计，优化等等，以下是部分推荐书籍：<br />1.多视图几何
@@ -43,9 +46,9 @@ VSLAM属于一个交叉系统学科，包含很多方向的内容，如多视图
 - ubuntu, cmake, [bash](https://www.zhihu.com/search?q=bash&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22%3A%22answer%22%2C%22sourceId%22%3A145219653%7D), vim, qt(optional).
 - OpenCV install, read the opencv reference manual and tutorial.
 -  ros install： [ROS/Installation - ROS Wiki](https://link.zhihu.com/?target=http%3A//wiki.ros.org/ROS/Installation)
-- ros [tutorial](https://www.zhihu.com/search?q=tutorial&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22%3A%22answer%22%2C%22sourceId%22%3A145219653%7D): [ROS/Tutorials - ROS Wiki](https://link.zhihu.com/?target=http%3A//wiki.ros.org/ROS/Tutorials)
+- ros [tutorial](https://www.zhihu.com/search?q=tutorial&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra=%7B%22sourceType%22%3A%22answer%22%2C%22sourceId%22%3A145219653%7D): [ROS/Tutorials - ROS Wiki](https://link.zhihu.com/?target=http%3A//wiki.ros.org/ROS/Tutorials) \
 
-项目github地址：[https://github.com/datawhalechina/smoothly-vslam](https://github.com/datawhalechina/smoothly-vslam)<br />如果你想对本教程做贡献，请邮件联系：530019431@qq.com
+如果你想对本教程做贡献，请邮件联系：530019431@qq.com
 
 Finally, hope you enjoy it！
 
