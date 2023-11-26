@@ -10,5 +10,4 @@
 - [10.又回到曾经的地点：回环检测](chapter10/chapter10)
 - [11.终识庐山真面目：建图](chapter11/chapter11)
 - [12.实践是检验真理的唯一标准：设计VSLAM系统](chapter12/chapter12)
-- [第二章 差异与统一：坐标系变换与外参标定](chapter2/chapter2)
-- [第二章 差异与统一：坐标系变换与外参标定](chapter2/chapter2)
+- [思考题参考答案](reference_answers_for_each_chapter/reference_answers_for_each_chapter)

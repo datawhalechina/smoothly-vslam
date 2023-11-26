@@ -1,16 +1,23 @@
-# **8.在不确定中寻找确定：后端之卡尔曼滤波**
-
 在观察的领域中，机遇只偏爱那种有准备的头脑。——巴斯德
 
 ---
 
-> **本章主要内容**
-> 卡尔曼滤波原理
+> **本章主要内容** \
+> 1.滤波器，滤波算法简介 \
+> 2.卡尔曼滤波公式推导
+
+<a name="s2ASQ"></a>
+## 8.1滤波器及滤波算法
+在很久之前，人们刚结束信息传递只能靠信件的时代，通信技术蓬勃发展，无线通信和有线通信走进家家户户，而著名的贝尔实验室就在这个过程做了很多影响深远的研究。为了满足不同电路和系统对信号的需求，比如去除噪声，或者区分不同频率的信号，滤波器就诞生了，而贝尔实验室就是这一领域研究的先行者。早期的滤波器是电子滤波器，是由电阻，电感，电容等电子元件组成的物理电路，其电路图大概长这样：<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/1782698/1700969090586-af3a0fa3-f2d4-428e-86e9-5c11a7be6f46.png#averageHue=%23000000&clientId=u88c33fc0-6828-4&from=paste&height=258&id=ua28c1e98&originHeight=1434&originWidth=2560&originalType=url&ratio=1.25&rotation=0&showTitle=false&size=134358&status=done&style=none&taskId=ue7f15821-e1fe-468c-9cff-57e24519a39&title=&width=461)<br />这个是由一个电容和一个电阻组成的RC滤波器。而装在实际家电或者设备中的滤波器大概如下图，这个是一个包含高通和低通滤波器的信号分离装置。<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/1782698/1700969007597-71a91932-e0bb-4a9a-b3b9-5ca261c3b7c6.png#averageHue=%23adb8ba&clientId=u88c33fc0-6828-4&from=paste&height=275&id=u72391c8e&originHeight=941&originWidth=1493&originalType=url&ratio=1.25&rotation=0&showTitle=false&size=2664981&status=done&style=none&taskId=ude9dca0a-c7d6-4ccf-9e35-a7bd6f00087&title=&width=437)<br />随着技术的发展（主要是计算机的兴起），相比于处理原始模拟信号，人们更愿意处理数字信号，这可以带来更高的处理速度，更低的成本和更高的精度，于是，**数字滤波器**诞生了。数字滤波器是对数字信号进行滤波处理以得到期望的响应特性的离散时间系统。这时候数字模拟器还是依靠基本的一些电路元件比如寄存器，延时器，加法器等，但其工作的领域已变为经过数模转换器转化后的数字信号域了，后面广泛用于收音机，蜂窝电话等设备中。<br />![](https://cdn.nlark.com/yuque/0/2023/jpeg/1782698/1700970067585-286740e8-d640-41e2-b327-793c5c1d79b3.jpeg#averageHue=%232f4b53&clientId=u88c33fc0-6828-4&from=paste&height=259&id=ue88c82c5&originHeight=500&originWidth=900&originalType=url&ratio=1.25&rotation=0&showTitle=false&status=done&style=none&taskId=u8ff7e880-028b-48f3-93dd-ebd2197150e&title=&width=467)<br />数字滤波器早期主要处理信号，而信号都是一些波形，这也是滤波的由来。后面随着人们对滤波器的扩展，出现了另外一种形式的数字滤波器，其工作过程包含状态空间模型，称为状态空间滤波器，**状态空间滤波器**的一个典型例子是[Rudolf Kalman](https://zh.wikipedia.org/w/index.php?title=Rudolf_Kalman&action=edit&redlink=1)在1960年提出的[卡尔曼滤波器](https://zh.wikipedia.org/wiki/%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2%E5%99%A8)。这时候虽然没有了波，主要是空间状态，但按传统，这个名称还是保留了下来。<br />最后，随着计算机的发展，中央处理器（CPU）集成了各种计算单元，所有计算任务都可以交给它，数字滤波器就不用单独保留如寄存器，加法器等元件了，在保留了算法原理和流程之后羽化成仙，成为了**滤波算法**。
 
 <a name="Sv22o"></a>
-## 8.1 滤波
-滤波，我理解为，过滤一些东西。那么卡尔曼滤波过滤的是什么东西呢？答案就是过滤掉信号中的噪声。
-> 卡尔曼滤波通常用来估计带噪信号中隐藏的真实信息。它的输入信号带有“过程噪声”和“观测噪声”，输出信号是对真实信号的最优估计，处理的本质是对噪声的滤除，因此称为“滤波”合情合理。
+## 8.2 卡尔曼滤波
+发明了卡尔曼滤波算法的人，叫做鲁道夫·埃米尔·卡尔曼，是一个匈牙利人，下面是老爷子的近照。<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/1782698/1700971378769-c6a00009-917a-456c-8c5b-a78f83c77bb8.png#averageHue=%234a5154&clientId=u88c33fc0-6828-4&from=paste&height=266&id=ubef5cffa&originHeight=300&originWidth=321&originalType=url&ratio=1.25&rotation=0&showTitle=false&size=144806&status=done&style=none&taskId=ucc8a176f-c34e-4e06-87f1-eaff4d15e9b&title=&width=285)<br />之所以说是近照，因为卡尔曼老爷子2016年才过世的，算很近代的人物。（莫名想到有人一直以为余华已经不在了的梗）<br />贴一段wiki中的内容：
+> 卡尔曼关于滤波的想法最初遭到巨大的怀疑，以至于他被迫在机械工程中首次发表他的成果，而不是在电机工程或系统工程中。然而卡尔曼在1960年访问美国NASA艾姆斯研究中心的史丹利·F·施密特时，在展示他的想法方面取得更大的成功。这使得卡尔曼的滤波在阿波罗计划中得到应用，此外在NASA航天飞机、海军潜艇以及无人驾驶航空器和武器（如巡航导弹）中也得到相关应用。
+
+是的，卡尔曼滤波算法最著名的成就当属在登月工程中的应用，被誉为把人类送上月球的算法。<br />好了，介绍完卡尔曼滤波算法的基本情况，接下来需要介绍一点背景相关的内容。<br />**第一：确定性过程与随机过程**<br />确定性过程可由初始条件准确推导结果，经典物理学基本属于这个范畴，比如我们之前学习的物理过程，由给定初始条件，加速度，算一定时间后的状态，完全由公式可递推出来：<br />$x_t = x_0 +v_0t+\frac{1}{2}a_0t^2$<br />但拿到现实中，这个推导容易出现很大偏差，其太过于理想，对实际是不符的。<br />那么实际过程是什么呢？更准确的描述是一个随机过程，即存在很多不确定性因数和过程在里面。<br />于是公式变为：<br />$x_t = x_0 +v_0t+\frac{1}{2}a_0t^2+w \\
+P_t = AP_0A^T+Q$<br />这里的x不再是一个确定的值，而是带着一个分布的随机量，同时结果中也包含随机噪声。这么一对比可以知道，确定性过程其实是随机过程的一个特例，即其概率为1，且不带噪声。<br />**第二：线性时不变系统(有点累，后面再补)**<br />用一句话概括时不变系统：如果你的系统是时不变系统，如果将相同的输入输入到系统中，无论何时将输入输入到系统中，都将获得相同的输出。<br />**第三：推导的一般假设（有点累，后面再补）**<br />零均值假设：<br />马尔科夫假设：<br />接下来是卡尔曼滤波的简介及五个经典公式：
+> 卡尔曼滤波通常用来估计带噪信号中隐藏的真实信息。它的输入信号带有“过程噪声”和“观测噪声”，输出信号是对真实信号的最优估计，处理的本质是对噪声的滤除。
 > 还可以认为卡尔曼滤波是一个估计器：每一时刻，它迭代式的对隐藏信息进行预测，再根据观测值进行修正，最后给出最优估计。
 > 最后，还可以认为卡尔曼滤波是一系列数学方程的总称，如下表所示，经典的卡尔曼滤波算法由五个公式组成，希望你在读完本文后，可以对这五个公式有了深刻的理解。
 > $\begin{aligned}
@@ -22,7 +29,7 @@
 \end{aligned}$
 
 <a name="cApXu"></a>
-## 8.2 卡尔曼滤波原理
+## 8.3 卡尔曼滤波算法推导简明版
 卡尔曼滤波是基于马尔科夫假设的，即下一时刻状态只与上一时刻有关。其主要针对于线性高斯系统，计算的流程如下：<br />假设状态$\mathbf{X}$的转移方程为：<br />$\begin{equation}
 \begin{aligned}
 \hat{\mathbf{x}}_{k} & =\mathbf{F}_{k} \hat{\mathbf{x}}_{k-1} \\
@@ -44,6 +51,9 @@ K_{k}=\frac{P_{k}^{-} H^{T}}{H P_{k}^{-} H^{T}+R} \\
 \hat{x}_{k}=\hat{x}_{\bar{k}}+K_{k}\left(z_{k}-H \hat{x}_{\bar{k}}\right) \\
 P_{k}=\left(I-K_{k} H\right) P_{\bar{k}}
 \end{array}$<br />其中计算K的都是使用先验方差，R为传感器方差。<br />Zk为实际观测值，Hxk为预测的观测值<br />最后使用K及先验方差，得到后验方差及后验均值。<br />卡尔曼滤波更新结束，是不是很简单。
+<a name="ypfyE"></a>
+## 8.4 卡尔曼滤波算法推导本质版
+卡尔曼滤波属于贝叶斯滤波的一种，本质是通过先验和观测，获得最大后验概率。而最优的后验概率，指真实值与估计值的协方差最小，即下面这个公式：<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/1782698/1700978512899-c2bd6506-62bf-4468-817a-e0bd44320e34.png#averageHue=%23f4f4f4&clientId=u88c33fc0-6828-4&from=paste&height=33&id=u97bf98c6&originHeight=41&originWidth=238&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=2522&status=done&style=none&taskId=uc96962c3-07b2-4597-a790-c4f6b7156cd&title=&width=190.4)<br />其中前一个x为真实值，后一个x为卡尔曼最终的估计值。<br />而这里的最终估计值，是在预测值的基础之上，使用观测值进行更新，更新的方式是基于预测和观测之间的误差<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/1782698/1700978713834-9a0d6e21-43be-4253-9c05-6b3511ef3651.png#averageHue=%23f8f8f8&clientId=u88c33fc0-6828-4&from=paste&height=50&id=u74061e4a&originHeight=62&originWidth=396&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=4452&status=done&style=none&taskId=ua65f531e-3510-4c97-9169-331d3c14337&title=&width=316.8)<br />而这个误差，就是卡尔曼增益。<br />这里我们统一把真实值与最终预测值的协方差放在k+1步来做，其实k+1与k都可以，只要理解其为递推后的一步就行。<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/1782698/1700978839102-87d0814a-c697-44c4-b7aa-f7454c9bbea4.png#averageHue=%23f5f5f5&clientId=u88c33fc0-6828-4&from=paste&height=133&id=ubbea8f19&originHeight=166&originWidth=594&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=24943&status=done&style=none&taskId=u00ffe45f-47fd-421f-b086-67bd5c3579d&title=&width=475.2)<br />方差主要是矩阵对角线上的元素，那么这里为求最小方差，可以只对协方差矩阵对角线上元素求导，即对迹求导就行。<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/1782698/1700979010353-1c0ea0c3-947f-4d1c-b9c5-c82c87deb6cc.png#averageHue=%23f7f7f7&clientId=u88c33fc0-6828-4&from=paste&height=50&id=ufb99dc11&originHeight=62&originWidth=441&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=6022&status=done&style=none&taskId=u3c49fd92-18cd-42bf-b54c-cca0d1b60ad&title=&width=352.8)<br />最终得到，卡尔曼最优增益为：<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/1782698/1700979024166-162a7915-0357-479e-874a-d6ef04bb75b8.png#averageHue=%23f5f5f5&clientId=u88c33fc0-6828-4&from=paste&height=38&id=u827ff0e9&originHeight=48&originWidth=237&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=3365&status=done&style=none&taskId=uaea90866-391e-48be-9e95-11e77d14718&title=&width=189.6)<br />把W带回P(k+1|k+1)，得：<br />![image.png](https://cdn.nlark.com/yuque/0/2023/png/1782698/1700979100956-6c2e739a-3ef3-4ea9-877d-728000905d71.png#averageHue=%23f2f2f2&clientId=u88c33fc0-6828-4&from=paste&height=28&id=ueeb10184&originHeight=35&originWidth=326&originalType=binary&ratio=1.25&rotation=0&showTitle=false&size=4117&status=done&style=none&taskId=uadce11c2-128d-4a41-82f6-64d6433b664&title=&width=260.8)<br />和原来经典五公式中3,4,5公式就是一致的了。<br />更详细的推导，见链接：[卡尔曼滤波-wiki](https://zh.wikipedia.org/wiki/%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2#%E6%8E%A8%E5%AF%BC%E5%90%8E%E9%AA%8C%E5%8D%8F%E6%96%B9%E5%B7%AE%E7%9F%A9%E9%98%B5)  ，[卡尔曼滤波最完整公式推导](https://zhuanlan.zhihu.com/p/341440139)
 <a name="oAPwt"></a>
 ## 本章小结
 本章主要介绍什么是卡尔曼滤波，及其算法过程。
@@ -52,4 +62,4 @@ P_{k}=\left(I-K_{k} H\right) P_{\bar{k}}
 1.卡尔曼滤波适用于什么系统？<br />2.卡尔曼增益的含义是什么？
 <a name="yG8Fe"></a>
 ## 参考
-[1.图说卡尔曼滤波，一份通俗易懂的教程](https://zhuanlan.zhihu.com/p/39912633)<br />[2.卡尔曼滤波五个公式各个参数的意义](https://blog.csdn.net/wccsu1994/article/details/84643221)<br />[3.卡尔曼滤波（Kalman Filter）原理与公式推导](https://zhuanlan.zhihu.com/p/48876718)<br />[4.卡尔曼滤波算法的五大核心公式含义](https://blog.csdn.net/qq_36812406/article/details/127821768?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-127821768-blog-84643221.235^v36^pc_relevant_default_base&spm=1001.2101.3001.4242.1&utm_relevant_index=3)<br />[5.一文看懂卡尔曼滤波（附全网最详细公式推导和Matlab代码）](https://zhuanlan.zhihu.com/p/559191083)
+[1.图说卡尔曼滤波，一份通俗易懂的教程](https://zhuanlan.zhihu.com/p/39912633)<br />[2.卡尔曼滤波五个公式各个参数的意义](https://blog.csdn.net/wccsu1994/article/details/84643221)<br />[3.卡尔曼滤波（Kalman Filter）原理与公式推导](https://zhuanlan.zhihu.com/p/48876718)<br />[4.卡尔曼滤波算法的五大核心公式含义](https://blog.csdn.net/qq_36812406/article/details/127821768?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-127821768-blog-84643221.235^v36^pc_relevant_default_base&spm=1001.2101.3001.4242.1&utm_relevant_index=3)<br />[5.一文看懂卡尔曼滤波（附全网最详细公式推导和Matlab代码）](https://zhuanlan.zhihu.com/p/559191083)<br />[6.卡尔曼滤波-wiki](https://zh.wikipedia.org/wiki/%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2#%E6%8E%A8%E5%AF%BC%E5%90%8E%E9%AA%8C%E5%8D%8F%E6%96%B9%E5%B7%AE%E7%9F%A9%E9%98%B5)<br />[7.卡尔曼滤波最完整公式推导](https://zhuanlan.zhihu.com/p/341440139)<br />[8.电子滤波器](https://zh.wikipedia.org/wiki/%E7%94%B5%E5%AD%90%E6%BB%A4%E6%B3%A2%E5%99%A8)<br />[9.数字滤波器](https://zh.wikipedia.org/wiki/%E6%95%B0%E5%AD%97%E6%BB%A4%E6%B3%A2%E5%99%A8)<br />[9.鲁道夫·卡尔曼](https://zh.wikipedia.org/zh-cn/%E9%B2%81%E9%81%93%E5%A4%AB%C2%B7%E5%8D%A1%E5%B0%94%E6%9B%BC)
